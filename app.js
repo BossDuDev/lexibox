@@ -6,7 +6,8 @@ const shuffle = a => a.sort(() => Math.random() - .5);
 const uid = () => Math.random().toString(36).slice(2, 10);
 
 /* Données : Supabase (comptes + base). Les valeurs viennent de js/config.js */
-const sb = supabase.createClient(CONFIG.url, CONFIG.cle);
+let sb;
+try { sb = supabase.createClient(CONFIG.url, CONFIG.cle); } catch (err) { console.error('Supabase :', err); }
 const S = { moi: null, user: null, pseudo: '', lessons: [], cats: [], pubs: [], xp: 0, streak: 0, last: '', lang: localStorage.getItem('lexibox-lang') || 'en' };
 let vue = 'mes', filtre = '*', recherche = '';
 const save = () => localStorage.setItem('lexibox-lang', S.lang); // seule la langue reste en local
@@ -32,15 +33,22 @@ async function charger() {
 }
 
 async function demarrer() {
-  const { data } = await sb.auth.getSession();
-  S.user = data.session ? data.session.user : null; S.moi = S.user ? S.user.id : null;
-  // on branche l'écoute après avoir posé l'état, sinon le premier évènement recharge tout pour rien
-  sb.auth.onAuthStateChange((_ev, ses) => {
-    const id = ses && ses.user ? ses.user.id : null;
-    if (id !== S.moi) { S.user = ses ? ses.user : null; S.moi = id; charger(); }
-  });
-  if (!S.user && !sessionStorage.getItem('invite')) accueil();
-  charger();
+  // l'écran d'accueil passe en premier : même si Supabase plante ensuite, on le voit
+  if (!sessionStorage.getItem('invite')) {
+    accueil();
+    if (!sb || CONFIG.url.includes('TON-PROJET')) $('#aerr').textContent = "js/config.js n'est pas rempli : colle l'URL et la clé de ton projet Supabase.";
+  }
+  try {
+    const { data } = await sb.auth.getSession();
+    S.user = data.session ? data.session.user : null; S.moi = S.user ? S.user.id : null;
+    if (S.user && $('#accueil')) $('#accueil').hidden = true;
+    // on branche l'écoute après avoir posé l'état, sinon le premier évènement recharge tout pour rien
+    sb.auth.onAuthStateChange((_ev, ses) => {
+      const id = ses && ses.user ? ses.user.id : null;
+      if (id !== S.moi) { S.user = ses ? ses.user : null; S.moi = id; charger(); }
+    });
+    await charger();
+  } catch (err) { console.error(err); render(); }
 }
 
 function accueil() {
