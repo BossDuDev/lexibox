@@ -98,3 +98,41 @@ input[type=email],input[type=password]{border:3px solid var(--encre);border-radi
 #accueil input{margin-bottom:10px}
 #aerr{min-height:1.4em;margin-bottom:8px;color:var(--ko);font-weight:800}
 #compte button{padding:3px 12px}
+
+/* page de présentation */
+#vitrine{position:fixed;inset:0;z-index:55;overflow:auto;background:var(--papier);padding:0 18px 60px}
+.v-haut{max-width:980px;margin:0 auto;padding:22px 0;display:flex;justify-content:space-between;align-items:center}
+.v-hero{max-width:980px;margin:20px auto 70px;display:grid;grid-template-columns:1.1fr .9fr;gap:40px;align-items:center}
+.v-hero h2{font-size:clamp(2.2rem,6vw,3.8rem);line-height:1;letter-spacing:-2px;margin-bottom:18px}
+.v-hero p{font-size:1.15rem;margin-bottom:22px}
+.v-cta{display:flex;gap:12px;flex-wrap:wrap}.v-cta .gros{width:auto}
+.v-bloc{max-width:980px;margin:0 auto 70px}
+.v-bloc h2{font-size:2rem;margin-bottom:14px;letter-spacing:-1px}
+.v-bloc>p{font-size:1.15rem;max-width:640px}
+.rev{opacity:0;transform:translateY(40px);transition:opacity .7s,transform .7s}
+.rev.vu{opacity:1;transform:none}
+.maq{background:#fff;border:3px solid var(--encre);border-radius:20px;padding:18px;box-shadow:var(--ombre);text-align:center}
+.maq-quiz{transform:rotate(2deg);animation:flotte 7s ease-in-out infinite}
+.maq-quiz h3{font-size:2.4rem;margin:6px 0 14px}
+.m-barre{height:14px;border:3px solid var(--encre);border-radius:99px;overflow:hidden;margin-bottom:14px}
+.m-barre i{display:block;height:100%;width:70%;background:var(--ok);animation:rempli 4s infinite}
+@keyframes rempli{0%{width:20%}60%,100%{width:80%}}
+.m-combo{font-weight:800;color:#e8590c}
+.m-champ{border:3px solid var(--encre);border-radius:12px;padding:9px;font-size:1.3rem;min-height:3rem}
+.tape{display:inline-block;overflow:hidden;white-space:nowrap;vertical-align:bottom;animation:ecrit 4s steps(3) infinite}
+@keyframes ecrit{0%,15%{width:0}45%,90%{width:3ch}100%{width:0}}
+.m-ok{color:var(--ok);font-weight:800;margin-top:10px;animation:okvu 4s infinite}
+@keyframes okvu{0%,45%{opacity:0;transform:scale(.5)}55%{opacity:1;transform:scale(1.4)}65%,90%{opacity:1;transform:none}100%{opacity:0}}
+.v-pas,.v-grille{display:grid;grid-template-columns:repeat(auto-fit,minmax(230px,1fr));gap:26px}
+.v-pas>div{position:relative}
+.v-pas .num{position:absolute;top:-14px;left:-8px;z-index:2;width:38px;height:38px;border-radius:50%;background:var(--a);border:3px solid var(--encre);display:grid;place-items:center;font-weight:800}
+.v-pas .maq{margin-bottom:14px;min-height:130px;display:grid;place-content:center;gap:8px}
+.v-pas pre{text-align:left;font-family:ui-monospace,monospace}
+.v-pas h3{margin-bottom:4px}
+.mini{border-top:14px solid var(--c)}
+.mini .jouer,.maq .maj{display:inline-block;border:3px solid var(--encre);border-radius:14px;padding:6px 14px;font-weight:800;box-shadow:3px 3px 0 var(--encre)}
+.mini .jouer{background:var(--ok);color:#fff}
+.v-grille>div{border:3px solid var(--encre);border-radius:16px;padding:16px;background:#fff}
+.v-grille>div:nth-child(odd){transform:rotate(-1deg)}.v-grille>div:nth-child(even){transform:rotate(1deg)}
+.v-fin{text-align:center}.v-fin .v-cta{justify-content:center}
+@media (max-width:760px){.v-hero{grid-template-columns:1fr}}
