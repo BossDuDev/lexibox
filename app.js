@@ -35,13 +35,12 @@ async function charger() {
 async function demarrer() {
   // l'écran d'accueil passe en premier : même si Supabase plante ensuite, on le voit
   if (!sessionStorage.getItem('invite')) {
-    accueil();
-    if (!sb || CONFIG.url.includes('TON-PROJET')) $('#aerr').textContent = "js/config.js n'est pas rempli : colle l'URL et la clé de ton projet Supabase.";
+    vitrine();
   }
   try {
     const { data } = await sb.auth.getSession();
     S.user = data.session ? data.session.user : null; S.moi = S.user ? S.user.id : null;
-    if (S.user && $('#accueil')) $('#accueil').hidden = true;
+    if (S.user) cacher();
     // on branche l'écoute après avoir posé l'état, sinon le premier évènement recharge tout pour rien
     sb.auth.onAuthStateChange((_ev, ses) => {
       const id = ses && ses.user ? ses.user.id : null;
@@ -49,6 +48,68 @@ async function demarrer() {
     });
     await charger();
   } catch (err) { console.error(err); render(); }
+}
+
+const cacher = () => ['#accueil', '#vitrine'].forEach(q => { const x = $(q); if (x) x.hidden = true; });
+
+/* Page de présentation pour qui débarque : idée, aperçus de l'interface, qui fait ça */
+function vitrine() {
+  let d = $('#vitrine'); if (!d) { d = document.createElement('div'); d.id = 'vitrine'; document.body.append(d); }
+  d.hidden = false; d.scrollTop = 0;
+  d.innerHTML = `
+  <header class="v-haut"><h1 class="logo">lexi<b>box</b></h1><button data-act="connexion">Connexion</button></header>
+
+  <section class="v-hero">
+    <div>
+      <h2>Tes listes de mots.<br>Un quiz qui te lâche pas.</h2>
+      <p>Tu colles ton vocabulaire d'anglais ou d'espagnol. Lexibox te donne le mot en français, tu tapes la traduction. Ça brille quand c'est bon, ça tremble quand c'est raté, et tu reviens demain pour ne pas casser ta série.</p>
+      <div class="v-cta"><button class="on gros" data-act="invite">Jeter un œil sans compte</button><button data-act="connexion">Se connecter / créer un compte</button></div>
+    </div>
+    <div class="maq maq-quiz"><div class="m-barre"><i></i></div><p class="m-combo">🔥 série de 4</p><p class="meta">En anglais, ça donne quoi ?</p><h3>le chat</h3>
+      <div class="m-champ"><span class="tape">cat</span></div><p class="m-ok">Boum.</p></div>
+  </section>
+
+  <section class="v-bloc rev">
+    <h2>Ça sert à quoi</h2>
+    <p>À apprendre le vocabulaire que tu as vraiment à apprendre : la liste du prof, celle du cahier, celle du voyage de cet été. Pas un cours imposé. Tu apportes les mots, Lexibox s'occupe de te les redemander jusqu'à ce que ça rentre.</p>
+  </section>
+
+  <section class="v-bloc rev">
+    <h2>Comment ça marche</h2>
+    <div class="v-pas">
+      <div><span class="num">1</span>
+        <div class="maq"><pre>le chat = cat
+la maison = house
+le billet = ticket</pre></div>
+        <h3>Tu écris ta liste</h3><p>Un mot par ligne, le français à gauche, la traduction à droite. Tu ranges la leçon dans une catégorie de ta couleur, privée ou publique.</p></div>
+      <div><span class="num">2</span>
+        <div class="maq mini" style="--c:#2fb86b"><b>La cuisine</b><small>12 mots</small><span class="jouer">▶ Jouer</span></div>
+        <h3>Tu joues</h3><p>Chaque bonne réponse rapporte des points et nourrit ta série de jours. Les mots ratés reviennent à la fin, jusqu'à ce qu'ils passent.</p></div>
+      <div><span class="num">3</span>
+        <div class="maq"><div class="diff"><p class="plus">+ le four = oven</p><p class="moins">la poêle = pan</p></div><span class="maj">Mettre à jour</span></div>
+        <h3>Tu pioches chez les autres</h3><p>Dans l'onglet Communauté, tu ajoutes une leçon publique à tes leçons. Si son auteur la corrige, tu vois ce qui change avant d'accepter.</p></div>
+    </div>
+  </section>
+
+  <section class="v-bloc rev">
+    <h2>Dans la boîte</h2>
+    <div class="v-grille">
+      <div><h3>Anglais et espagnol</h3><p>Un interrupteur en haut, et le site change de couleur.</p></div>
+      <div><h3>Tes catégories</h3><p>Tu les inventes, tu choisis leur couleur, tu tries tes leçons avec.</p></div>
+      <div><h3>Copies à toi</h3><p>Tu modifies une leçon copiée sans toucher à l'originale.</p></div>
+      <div><h3>Points et série</h3><p>Pour avoir envie de ne pas sauter un jour.</p></div>
+    </div>
+  </section>
+
+  <section class="v-bloc rev">
+    <h2>Qui fait ça</h2>
+    <p>Un projet perso fait par BossDuDev, gratuit, hébergé sur GitHub Pages. Les comptes et les leçons sont stockés chez Supabase.</p>
+  </section>
+
+  <section class="v-bloc rev v-fin"><h2>Tu veux voir ?</h2>
+    <div class="v-cta"><button class="on gros" data-act="invite">Jeter un œil sans compte</button><button data-act="connexion">Créer un compte</button></div></section>`;
+  const io = new IntersectionObserver(l => l.forEach(x => { if (x.isIntersecting) x.target.classList.add('vu'); }), { root: d, threshold: .15 });
+  d.querySelectorAll('.rev').forEach(x => io.observe(x));
 }
 
 function accueil() {
@@ -60,6 +121,7 @@ function accueil() {
     <input id="aps" placeholder="pseudo (à remplir pour créer un compte)"><p id="aerr"></p>
     <button class="gros" value="in">Se connecter</button><br><br>
     <button value="up">Créer un compte</button> <button type="button" data-act="invite">Essayer sans compte</button></form>`;
+  if (!sb || CONFIG.url.includes('TON-PROJET')) $('#aerr').textContent = "js/config.js n'est pas rempli : colle l'URL et la clé de ton projet Supabase.";
   $('#fauth').onsubmit = async ev => {
     ev.preventDefault();
     const up = ev.submitter.value === 'up', email = $('#aem').value, password = $('#amd').value;
@@ -67,7 +129,7 @@ function accueil() {
                  : await sb.auth.signInWithPassword({ email, password });
     if (r.error) return void ($('#aerr').textContent = r.error.message);
     if (up && !r.data.session) return void ($('#aerr').textContent = 'Compte créé. Clique sur le lien reçu par email, puis connecte-toi.');
-    d.hidden = true; sfx.win(); confettis(80);
+    cacher(); sfx.win(); confettis(80);
   };
 }
 
@@ -270,8 +332,8 @@ const actions = {
   jouer: b => { jouer(b.dataset.id); return 1; },
   valider, quitter: () => { $('#jeu').hidden = true; Q = null; },
   connexion: () => { accueil(); return 1; },
-  invite: () => { sessionStorage.setItem('invite', 1); $('#accueil').hidden = true; return 1; },
-  deco: async () => { await sb.auth.signOut(); sessionStorage.removeItem('invite'); accueil(); return 1; },
+  invite: () => { sessionStorage.setItem('invite', 1); cacher(); return 1; },
+  deco: async () => { await sb.auth.signOut(); sessionStorage.removeItem('invite'); vitrine(); return 1; },
   suppr: async b => { if (confirm('Supprimer cette leçon ?')) { await sb.from('lessons').delete().eq('id', b.dataset.id); await charger(); } return 1; },
   ajouter: async b => { // copie perso : l'original public reste intact
     if (!S.user) { accueil(); return 1; }
