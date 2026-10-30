@@ -36,10 +36,10 @@ supabase.sql        les tables et les règles de sécurité, à lancer une fois
 
 1. Crée un projet gratuit sur [supabase.com](https://supabase.com).
 2. Ouvre SQL Editor, colle tout `supabase.sql`, clique sur Run.
-3. Ouvre Project Settings, puis API. Copie l'URL du projet et la clé `anon public`.
+3. Ouvre Project Settings, puis API. Copie l'URL du projet, puis dans API Keys la « Publishable key » (`sb_publishable_...`). Sur un vieux projet, c'est la clé `anon public`.
 4. Colle-les dans `js/config.js`.
 
-La clé `anon public` peut rester dans le code du site, elle est faite pour ça. La sécurité repose sur les règles du fichier SQL : chacun ne lit que ses leçons privées, et seul l'auteur modifie ou supprime les siennes. Ne mets jamais la clé `service_role` dans le dépôt.
+La clé publishable (ou `anon`) peut rester dans le code du site, elle est faite pour ça. La sécurité repose sur les règles du fichier SQL : chacun ne lit que ses leçons privées, et seul l'auteur modifie ou supprime les siennes. Ne mets jamais une clé « secret » ni la clé `service_role` dans le dépôt.
 
 ### 2. GitHub Pages
 
@@ -68,7 +68,7 @@ Les traductions alternatives se séparent par `/`. Les accents et les majuscules
 ## Si ça ne marche pas
 
 - Page blanche ou rien ne se charge : ouvre la console du navigateur (F12) et regarde l'erreur en rouge. Le plus souvent, `js/config.js` n'est pas rempli ou un fichier n'est pas au bon endroit.
-- « Invalid API key » : la clé collée dans `config.js` est incomplète ou ce n'est pas la clé `anon public`.
+- « Invalid API key » : la clé collée dans `config.js` est incomplète ou ce n'est pas la clé publishable (ou `anon`).
 - L'inscription réussit mais impossible de se connecter : l'email n'est pas confirmé, ou l'adresse du site manque dans URL Configuration.
 - La communauté reste vide : normal tant que personne n'a publié de leçon. Crée-en une, coche publique, elle apparaît.
 - Ça marche sur ton adresse GitHub Pages mais pas en double-cliquant sur `index.html` : ouvre-le plutôt avec un petit serveur local (`python3 -m http.server`).
