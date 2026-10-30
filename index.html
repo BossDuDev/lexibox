@@ -1,0 +1,44 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Lexibox</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:wght@500;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="css/style.css">
+</head>
+<body data-lang="en">
+<canvas id="confettis"></canvas>
+<div class="blobs"><i></i><i></i><i></i></div>
+
+<header class="haut">
+  <h1 class="logo">lexi<b>box</b></h1>
+  <div class="langues">
+    <button data-act="langue" data-l="en">🇬🇧 Anglais</button>
+    <button data-act="langue" data-l="es">🇪🇸 Espagnol</button>
+  </div>
+  <div class="score">
+    <span title="Série de jours">🔥 <b id="flamme">0</b></span>
+    <span title="Points">⚡ <b id="xp">0</b></span>
+    <span id="compte" style="border:0;box-shadow:none;background:none;padding:0"></span>
+  </div>
+</header>
+
+<nav class="onglets">
+  <button data-act="vue" data-vue="mes">Mes leçons</button>
+  <button data-act="vue" data-vue="com">Communauté</button>
+  <button data-act="vue" data-vue="cat">Catégories</button>
+</nav>
+
+<main id="scene"></main>
+
+<dialog id="ed"></dialog>
+<dialog id="maj"></dialog>
+<div id="jeu" hidden></div>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.min.js"></script>
+<script src="js/config.js"></script>
+<script src="js/app.js"></script>
+</body>
+</html>
