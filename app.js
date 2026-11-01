@@ -196,6 +196,7 @@ function vMes() {
       <span class="tag">${c ? e(c.name) : 'Sans catégorie'}</span><span class="tag" style="--c:#fff">${l.public ? '🌍 publique' : '🔒 privée'}</span>
       ${l.origin ? '<span class="tag" style="--c:#fff">copie</span>' : ''}
       <div class="actions">
+        <button data-act="apprendre" data-id="${l.id}">📖 Apprendre</button>
         <button class="jouer" data-act="jouer" data-id="${l.id}">▶ Jouer</button>
         <button data-act="editer" data-id="${l.id}">Modifier</button>
         ${p ? `<button class="maj" data-act="voirmaj" data-id="${l.id}">Mettre à jour</button>` : ''}
@@ -268,6 +269,34 @@ function voirMaj(id) {
   $('#okmaj').onclick = async () => { await sb.from('lessons').update({ title: p.title, words: p.words, origin_rev: p.rev }).eq('id', id); sfx.win(); $('#maj').close(); charger(); };
 }
 
+/* ---------- apprendre : cartes à retourner, sans note, avant le quiz ---------- */
+let A = null;
+function parler(t, lang) { // prononciation par le navigateur, rien à héberger
+  if (!('speechSynthesis' in window)) return;
+  const u = new SpeechSynthesisUtterance(t.split('/')[0]); u.lang = lang === 'es' ? 'es-ES' : 'en-GB';
+  speechSynthesis.cancel(); speechSynthesis.speak(u);
+}
+function apprendre(id) {
+  const l = S.lessons.find(x => x.id === id); if (!l || !l.words.length) return;
+  A = { l, i: 0, mots: [...l.words] }; afficherCarte();
+}
+function afficherCarte() {
+  const j = $('#jeu'); j.hidden = false;
+  if (A.i >= A.mots.length) {
+    j.innerHTML = `<div class="jeu-boite bilan"><h2>Tu as tout vu 👀</h2><p>${A.mots.length} mots passés en revue.</p><br>
+      <button class="gros" data-act="aquiz">Passer au quiz</button><br><br>
+      <button data-act="arevoir">Revoir les cartes</button> <button data-act="quitter">Fermer</button></div>`;
+    sfx.win(); confettis(40); return;
+  }
+  const w = A.mots[A.i];
+  j.innerHTML = `<div class="jeu-boite"><div class="barre"><i style="width:${A.i / A.mots.length * 100}%"></i></div>
+    <button class="x" data-act="quitter">✕</button>
+    <p class="etiq">${A.i + 1} / ${A.mots.length} · touche la carte pour la retourner</p>
+    <div class="flip" data-act="retourner"><div class="face"><div class="recto"><span>${e(w.fr)}</span></div><div class="verso"><span>${e(w.tr)}</span></div></div></div>
+    <div class="actions" style="justify-content:center"><button data-act="aprec" ${A.i ? '' : 'disabled'}>←</button>
+    <button data-act="dire" title="Écouter">🔊</button><button data-act="mel" title="Mélanger">🔀</button><button class="on" data-act="asuiv">Suivant →</button></div></div>`;
+}
+
 /* ---------- quiz ---------- */
 let Q = null;
 const norm = s => s.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '').replace(/[^a-z0-9 ]/g, '').trim();
@@ -330,7 +359,15 @@ const actions = {
   editer: b => { ouvrirEditeur(b.dataset.id); return 1; },
   voirmaj: b => { voirMaj(b.dataset.id); return 1; },
   jouer: b => { jouer(b.dataset.id); return 1; },
-  valider, quitter: () => { $('#jeu').hidden = true; Q = null; },
+  valider, quitter: () => { $('#jeu').hidden = true; Q = null; A = null; },
+  apprendre: b => { apprendre(b.dataset.id); return 1; },
+  retourner: b => { b.classList.toggle('retourne'); return 1; },
+  asuiv: () => { A.i++; afficherCarte(); return 1; },
+  aprec: () => { if (A.i) A.i--; afficherCarte(); return 1; },
+  mel: () => { A.mots = shuffle([...A.mots]); A.i = 0; afficherCarte(); return 1; },
+  arevoir: () => { A.i = 0; afficherCarte(); return 1; },
+  dire: () => { parler(A.mots[A.i].tr, A.l.lang); return 1; },
+  aquiz: () => { const id = A.l.id; A = null; jouer(id); return 1; },
   connexion: () => { accueil(); return 1; },
   invite: () => { sessionStorage.setItem('invite', 1); cacher(); return 1; },
   deco: async () => { await sb.auth.signOut(); sessionStorage.removeItem('invite'); vitrine(); return 1; },
@@ -355,6 +392,13 @@ document.addEventListener('change', ev => {
 document.addEventListener('input', ev => {
   if (ev.target.id === 'chercher') { recherche = ev.target.value; const p = ev.target.selectionStart; render(); const c = $('#chercher'); c.focus(); c.setSelectionRange(p, p); }
 });
-document.addEventListener('keydown', ev => { if (ev.key === 'Enter' && ev.target.id === 'rep') valider(); });
+document.addEventListener('keydown', ev => {
+  if (ev.key === 'Enter' && ev.target.id === 'rep') valider();
+  if (A && !$('#jeu').hidden) { // au clavier : flèches pour avancer, espace pour retourner
+    if (ev.key === 'ArrowRight') actions.asuiv();
+    if (ev.key === 'ArrowLeft') actions.aprec();
+    if (ev.key === ' ') { ev.preventDefault(); const f = $('.flip'); if (f) f.classList.toggle('retourne'); }
+  }
+});
 
 demarrer();
