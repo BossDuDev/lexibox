@@ -136,3 +136,11 @@ input[type=email],input[type=password]{border:3px solid var(--encre);border-radi
 .v-grille>div:nth-child(odd){transform:rotate(-1deg)}.v-grille>div:nth-child(even){transform:rotate(1deg)}
 .v-fin{text-align:center}.v-fin .v-cta{justify-content:center}
 @media (max-width:760px){.v-hero{grid-template-columns:1fr}}
+
+/* cartes à retourner du mode apprendre */
+.flip{perspective:900px;height:230px;margin:10px 0 24px;cursor:pointer;animation:entre .35s}
+.face{position:relative;width:100%;height:100%;transition:transform .55s cubic-bezier(.3,1.4,.5,1);transform-style:preserve-3d}
+.flip.retourne .face{transform:rotateY(180deg)}
+.recto,.verso{position:absolute;inset:0;-webkit-backface-visibility:hidden;backface-visibility:hidden;display:grid;place-items:center;border:3px solid var(--encre);border-radius:22px;box-shadow:var(--ombre);background:#fff;font-size:clamp(2rem,8vw,3rem);font-weight:800;padding:16px}
+.verso{transform:rotateY(180deg);background:var(--a)}
+.jeu-boite .actions button:disabled{opacity:.35;cursor:default}
